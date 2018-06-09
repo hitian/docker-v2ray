@@ -1,17 +1,8 @@
-FROM golang:latest as builder
+FROM alpine
+ENV ARCH "linux-64"
+ENV VERSION "v3.25.1"
 
-MAINTAINER t@hitian.info
-
-RUN mkdir /usr/bin/v2ray/
-RUN mkdir /etc/v2ray/
-RUN mkdir /var/log/v2ray/
-RUN go get -u v2ray.com/core/...
-RUN go get -u v2ray.com/ext/...
-RUN go install v2ray.com/ext/tools/build/vbuild
-RUN vbuild -dir /usr/bin/v2ray
-
-FROM alpine:latest
-COPY --from=builder /usr/bin/v2ray /usr/bin/v2ray
+ADD https://github.com/v2ray/v2ray-core/releases/download/${VERSION}/v2ray-${ARCH}.zip v2ray.zip
+RUN unzip v2ray.zip && mv v2ray-${VERSION}-${ARCH} /usr/bin/v2ray && rm v2ray.zip
 ENV PATH /usr/bin/v2ray/:$PATH
 CMD ["v2ray", "-h"]
-
